@@ -3,6 +3,9 @@ const fs = require('fs')
 
 // console.log(sum(3, 4))
 // console.log(diff(3, 4))
+console.log(performance.now())
+fs.readFile('demo.txt', 'utf-8', (err, txt) => {
+    console.log(txt)
+})
 
-const txt = fs.readFileSync('demo.txt', 'utf-8')
-console.log(txt)
+console.log(performance.now())
