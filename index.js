@@ -4,50 +4,50 @@ const data = JSON.parse(fs.readFileSync('data.json', 'utf-8'))
 const products = data.products
 const morgan = require('morgan')
 const express = require('express')
-//server created
+
 const server = express()
-
-
 server.use(express.json())
-// server.use(express.url())
-server.use(morgan('default'))
 server.use(express.static('public'))
-// server.use((req, res, next) => {
-//     console.log(req.get('User-Agent'), req.ip, req.hostname)
-//     next()
-// })
 
-const auth = (req, res, next) => {
-    // console.log(req.query)
-    if (req.body.password === '123') {
-        next()
-    } else {
-        res.sendStatus(401)
-    }
+
+const createProduct = (req, res) => {
+    console.log(req.body)
+    products.push(req.body)
+    res.status(201).json(req.body)
+}
+const getAllProducts = (req, res) => {
+    res.json(products)
+}
+const getProduct = (req, res) => {
+    const id = +req.params.id
+    const product = products.find(p => p.id === id)
+    res.json(product)
+}
+const replaceProduct = (req, res) => {
+    const id = +req.params.id
+    const productIndex = products.findIndex(p => p.id === id)
+    products.splice(productIndex, 1, { ...req.body, id: id })
+    res.json({ 'status': 'UPDATED' })
+}
+const updateProduct = (req, res) => {
+    const id = +req.params.id
+    const productIndex = products.findIndex(p => p.id === id)
+    const product = products[productIndex]
+    products.splice(productIndex, 1, { ...product, ...req.body })
+    res.json({ 'status': 'UPDATED' })
+}
+const deleteProduct = (req, res) => {
+    const id = +req.params.id
+    const productIndex = products.findIndex(p => p.id === id)
+    products.splice(productIndex, 1,)
+    res.json({ 'status': 'DELETE' })
 }
 
-server.get('/product/:id', (req, res) => {
-    console.log(req.params)
-    res.json({ type: 'GET' })
-})
-server.post('/', auth, (req, res) => {
-    res.json({ type: 'POST' })
-})
-server.put('/', (req, res) => {
-    res.json({ type: 'PUT' })
-})
-server.delete('/', (req, res) => {
-    res.json({ type: 'DELETE' })
-})
-server.patch('/', (req, res) => {
-    res.json({ type: 'PATCH' })
-})
-
-server.get('/demo', (req, res) => {
-    // res.sendStatus(201).send('<h1>Hi</h1>')
-    // res.json(products)
-    // res.end('hello')
-    // res.sendFile('C:/Users/NITESH/Desktop/Web Development/node/node-learning/index.html')
-})
+server.get('/products', getAllProducts)
+server.get('/products/:id', getProduct)
+server.post('/products', createProduct)
+server.put('/products/:id', replaceProduct)
+server.patch('/products/:id', updateProduct)
+server.delete('/products/:id', deleteProduct)
 
 server.listen(3000)
