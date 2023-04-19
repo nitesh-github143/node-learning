@@ -1,4 +1,5 @@
 const fs = require('fs')
+const mongoose = require('mongoose');
 const model = require('../Model/product')
 const Product = model.Product
 // const index = fs.readFileSync('index.html', 'utf-8')
@@ -14,30 +15,27 @@ exports.createProduct = (req, res) => {
             console.log(err);
         });
 }
-exports.getAllProducts = (req, res) => {
-    res.json(products)
-}
-exports.getProduct = (req, res) => {
-    const id = +req.params.id
-    const product = products.find(p => p.id === id)
+exports.getAllProducts = async (req, res) => {
+    const product = await Product.find({ price: { $gt: 600 } })
     res.json(product)
 }
-exports.replaceProduct = (req, res) => {
-    const id = +req.params.id
-    const productIndex = products.findIndex(p => p.id === id)
-    products.splice(productIndex, 1, { ...req.body, id: id })
+exports.getProduct = async (req, res) => {
+    const id = req.params.id
+    const product = await Product.findById(id)
+    res.json(product)
+}
+exports.replaceProduct = async (req, res) => {
+    const id = req.params.id
+    const doc = await Product.findOneAndReplace({ _id: id }, req.body)
     res.json({ 'status': 'UPDATED' })
 }
-exports.updateProduct = (req, res) => {
-    const id = +req.params.id
-    const productIndex = products.findIndex(p => p.id === id)
-    const product = products[productIndex]
-    products.splice(productIndex, 1, { ...product, ...req.body })
+exports.updateProduct = async (req, res) => {
+    const id = req.params.id
+    const doc = await Product.findOneAndUpdate({ _id: id }, req.body, { new: true })
     res.json({ 'status': 'UPDATED' })
 }
-exports.deleteProduct = (req, res) => {
-    const id = +req.params.id
-    const productIndex = products.findIndex(p => p.id === id)
-    products.splice(productIndex, 1,)
+exports.deleteProduct = async (req, res) => {
+    const id = req.params.id
+    const doc = await Product.findOneAndDelete(id)
     res.json({ 'status': 'DELETE' })
 }
