@@ -1,12 +1,18 @@
 const fs = require('fs')
-const index = fs.readFileSync('index.html', 'utf-8')
-const data = JSON.parse(fs.readFileSync('data.json', 'utf-8'))
-const products = data.products
+const model = require('../Model/product')
+const Product = model.Product
+// const index = fs.readFileSync('index.html', 'utf-8')
 
 exports.createProduct = (req, res) => {
-    console.log(req.body)
-    products.push(req.body)
-    res.status(201).json()
+    const product = new Product(req.body)
+    product.save()
+        .then((doc) => {
+            console.log(doc);
+            res.status(201).json(doc)
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 }
 exports.getAllProducts = (req, res) => {
     res.json(products)
